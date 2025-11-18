@@ -1,0 +1,109 @@
+======================================================================
+Loading results from Task 1 and Task 2...
+======================================================================
+Loaded: Best K (25%) = 80
+Loaded: Best K (75%) = 70
+Loaded: Best SVD factors (25%) = 10
+Loaded: Best SVD factors (75%) = 5
+
+======================================================================
+TASK 3: Top-N Recommendations (Precision, Recall, F1)
+======================================================================
+
+======================================================================
+25% Missing Ratings - KNN (K=80)
+======================================================================
+
+    N |  Precision |     Recall |         F1
+--------------------------------------------------
+   10 |     0.6299 |     0.6681 |     0.6484
+   20 |     0.4782 |     0.8333 |     0.6077
+   30 |     0.3860 |     0.9064 |     0.5415
+   40 |     0.3209 |     0.9433 |     0.4789
+   50 |     0.2728 |     0.9643 |     0.4253
+   60 |     0.2350 |     0.9751 |     0.3787
+   70 |     0.2049 |     0.9801 |     0.3389
+   80 |     0.1813 |     0.9833 |     0.3062
+   90 |     0.1623 |     0.9850 |     0.2786
+  100 |     0.1466 |     0.9860 |     0.2553
+
+======================================================================
+25% Missing Ratings - SVD (10 factors)
+======================================================================
+
+    N |  Precision |     Recall |         F1
+--------------------------------------------------
+   10 |     0.6258 |     0.6663 |     0.6454
+   20 |     0.4761 |     0.8316 |     0.6055
+   30 |     0.3855 |     0.9056 |     0.5408
+   40 |     0.3209 |     0.9434 |     0.4789
+   50 |     0.2726 |     0.9640 |     0.4251
+   60 |     0.2344 |     0.9741 |     0.3779
+   70 |     0.2049 |     0.9798 |     0.3389
+   80 |     0.1812 |     0.9826 |     0.3059
+   90 |     0.1622 |     0.9849 |     0.2786
+  100 |     0.1466 |     0.9858 |     0.2552
+
+======================================================================
+75% Missing Ratings - KNN (K=70)
+======================================================================
+
+    N |  Precision |     Recall |         F1
+--------------------------------------------------
+   10 |     0.7053 |     0.3016 |     0.4225
+   20 |     0.6636 |     0.5299 |     0.5893
+   30 |     0.6066 |     0.6579 |     0.6313
+   40 |     0.5517 |     0.7366 |     0.6308
+   50 |     0.5043 |     0.7907 |     0.6158
+   60 |     0.4643 |     0.8307 |     0.5957
+   70 |     0.4314 |     0.8627 |     0.5752
+   80 |     0.4024 |     0.8881 |     0.5539
+   90 |     0.3774 |     0.9088 |     0.5334
+  100 |     0.3546 |     0.9252 |     0.5127
+
+======================================================================
+75% Missing Ratings - SVD (5 factors)
+======================================================================
+
+    N |  Precision |     Recall |         F1
+--------------------------------------------------
+   10 |     0.7577 |     0.3279 |     0.4578
+   20 |     0.6929 |     0.5501 |     0.6133
+   30 |     0.6239 |     0.6708 |     0.6465
+   40 |     0.5647 |     0.7478 |     0.6434
+   50 |     0.5150 |     0.7995 |     0.6264
+   60 |     0.4734 |     0.8384 |     0.6051
+   70 |     0.4381 |     0.8686 |     0.5824
+   80 |     0.4084 |     0.8937 |     0.5606
+   90 |     0.3819 |     0.9132 |     0.5385
+  100 |     0.3586 |     0.9294 |     0.5175
+
+======================================================================
+SUMMARY: Best F1 Scores
+======================================================================
+
+25% Sparsity:
+  KNN: Best F1 = 0.6484 at N=10 (P=0.6299, R=0.6681)
+  SVD: Best F1 = 0.6454 at N=10 (P=0.6258, R=0.6663)
+
+75% Sparsity:
+  KNN: Best F1 = 0.6313 at N=30 (P=0.6066, R=0.6579)
+  SVD: Best F1 = 0.6465 at N=30 (P=0.6239, R=0.6708)
+
+The precision-recall tradeoff is clearly visible: as N increases, recall improves
+(we capture more relevant items) but precision drops (more non-relevant items sneak in).
+This is fundamental to ranking systems.
+
+Best F1 scores occur at N=10 for 25% sparsity but shift to N=30 for 75% sparsity.
+This happens because with sparse data, users have fewer rated items overall,
+so we need a larger N to achieve good recall. At 25% sparsity, the top 10 items are highly accurate
+(precision ~0.63), but at 75% sparsity, we need 30 items to balance precision and recall effectively.
+
+SVD consistently matching or slightly beating KNN in F1 scores, especially at
+75% sparsity (0.6465 vs 0.6313), confirms Task 2's findings - SVD handles sparse data better by
+learning generalizable patterns rather than relying on direct user overlap.
+
+The results are remarkably similar between KNN and SVD at 25% sparsity,
+showing both methods work well when sufficient data exists. The real difference
+emerges under sparsity, where SVD's model-based approach shines.
+
