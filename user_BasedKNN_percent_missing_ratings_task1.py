@@ -15,9 +15,7 @@ trainset25, testset25 = train_test_split(data, test_size=.25, random_state=42)
 k_values = [5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 150, 200, 250]
 mae_results_25 = {}
 
-print("=" * 60)
 print("Task 1a: Finding Optimal K with 25% Missing Ratings")
-print("=" * 60)
 
 for k in k_values:
     # Configure KNN with Pearson similarity for user-based CF
@@ -40,10 +38,8 @@ for k in k_values:
 
 # find optimal K
 best_k_25 = min(mae_results_25, key=mae_results_25.get)
-print("\n" + "=" * 60)
 print(f"Best K for 25% sparsity: {best_k_25}")
 print(f"Best MAE: {mae_results_25[best_k_25]:.4f}")
-print("=" * 60)
 
 # Show diminishing returns
 print("\nDiminishing Returns Analysis:")
@@ -58,9 +54,7 @@ trainset75, testset75 = train_test_split(data, test_size=.75, random_state=42)
 
 mae_results_75 = {}
 
-print("\n" + "=" * 60)
 print("Task 1b: Finding Optimal K with 75% Missing Ratings")
-print("=" * 60)
 
 
 for k in k_values:

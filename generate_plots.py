@@ -1,28 +1,90 @@
+"""
+Generate Visualizations for Assignment 2 Report
+Loads results from task outputs and creates plots
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
+import pickle
 
-# set style for plots
+# Set style for plots
 plt.style.use('seaborn-v0_8-darkgrid')
 plt.rcParams['figure.figsize'] = (10, 6)
 plt.rcParams['font.size'] = 11
 
-# TASK 1: KNN Results
+# ============= Load Results from Task Files =============
+print("Loading results from task output files...")
 
-# Task 1a: 25% Sparsity
-k_values = [5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 150, 200, 250]
-mae_25 = [0.8049, 0.7717, 0.7591, 0.7533, 0.7508, 0.7488, 0.7467, 0.7458,
-          0.7455, 0.7453, 0.7452, 0.7453, 0.7454, 0.7458, 0.7460, 0.7462, 0.7462]
+# Load KNN results from Task 1
+with open('knn_results.pkl', 'rb') as f:
+    knn_data = pickle.load(f)
 
-# Task 1b: 75% Sparsity
-mae_75 = [0.8421, 0.8232, 0.8186, 0.8172, 0.8167, 0.8165, 0.8164, 0.8164,
-          0.8164, 0.8164, 0.8164, 0.8164, 0.8164, 0.8164, 0.8164, 0.8164, 0.8164]
+mae_results_25 = knn_data['mae_results_25']
+mae_results_75 = knn_data['mae_results_75']
 
-# plot 1: KNN MAE vs K for both sparsity levels
+# Load SVD results from Task 2
+with open('svd_results.pkl', 'rb') as f:
+    svd_data = pickle.load(f)
+
+svd_results_25 = svd_data['svd_results_25']
+svd_results_75 = svd_data['svd_results_75']
+
+# Load Task 3 results
+with open('task3_results.pkl', 'rb') as f:
+    task3_data = pickle.load(f)
+
+n_values = task3_data['n_values']
+knn_25_task3 = task3_data['knn_25_results']
+svd_25_task3 = task3_data['svd_25_results']
+knn_75_task3 = task3_data['knn_75_results']
+svd_75_task3 = task3_data['svd_75_results']
+
+print("All results loaded successfully")
+
+# Extract data for plotting
+k_values = list(mae_results_25.keys())
+mae_25 = list(mae_results_25.values())
+mae_75 = list(mae_results_75.values())
+
+factors = list(svd_results_25.keys())
+svd_mae_25 = list(svd_results_25.values())
+svd_mae_75 = list(svd_results_75.values())
+
+# Extract Task 3 metrics
+knn_25_precision = [x[1] for x in knn_25_task3]
+knn_25_recall = [x[2] for x in knn_25_task3]
+knn_25_f1 = [x[3] for x in knn_25_task3]
+
+svd_25_precision = [x[1] for x in svd_25_task3]
+svd_25_recall = [x[2] for x in svd_25_task3]
+svd_25_f1 = [x[3] for x in svd_25_task3]
+
+knn_75_precision = [x[1] for x in knn_75_task3]
+knn_75_recall = [x[2] for x in knn_75_task3]
+knn_75_f1 = [x[3] for x in knn_75_task3]
+
+svd_75_precision = [x[1] for x in svd_75_task3]
+svd_75_recall = [x[2] for x in svd_75_task3]
+svd_75_f1 = [x[3] for x in svd_75_task3]
+
+# Get best K values
+best_k_25 = min(mae_results_25, key=mae_results_25.get)
+best_k_75 = min(mae_results_75, key=mae_results_75.get)
+knn_best_25 = mae_results_25[best_k_25]
+knn_best_75 = mae_results_75[best_k_75]
+
+# Get best SVD factors
+best_factors_25 = min(svd_results_25, key=svd_results_25.get)
+best_factors_75 = min(svd_results_75, key=svd_results_75.get)
+
+# ============= Generate All Plots =============
+
+# Plot 1: KNN MAE vs K
 fig, ax = plt.subplots(figsize=(12, 7))
 ax.plot(k_values, mae_25, 'o-', linewidth=2, markersize=8, label='25% Missing (Test)', color='#2E86AB')
 ax.plot(k_values, mae_75, 's-', linewidth=2, markersize=8, label='75% Missing (Test)', color='#A23B72')
-ax.axvline(x=80, color='#2E86AB', linestyle='--', alpha=0.5, label='Best K (25%): K=80')
-ax.axvline(x=70, color='#A23B72', linestyle='--', alpha=0.5, label='Best K (75%): K=70')
+ax.axvline(x=best_k_25, color='#2E86AB', linestyle='--', alpha=0.5, label=f'Best K (25%): K={best_k_25}')
+ax.axvline(x=best_k_75, color='#A23B72', linestyle='--', alpha=0.5, label=f'Best K (75%): K={best_k_75}')
 ax.set_xlabel('K (Number of Neighbors)', fontsize=13, fontweight='bold')
 ax.set_ylabel('MAE (Mean Absolute Error)', fontsize=13, fontweight='bold')
 ax.set_title('Task 1: KNN Performance - Impact of K and Data Sparsity', fontsize=15, fontweight='bold')
@@ -33,7 +95,7 @@ plt.savefig('plot1_knn_mae_vs_k.png', dpi=300, bbox_inches='tight')
 print("Saved: plot1_knn_mae_vs_k.png")
 plt.close()
 
-# plot 2: diminishing Returns Analysis (25% only)
+# Plot 2: Diminishing Returns
 improvements_25 = [mae_25[i] - mae_25[i+1] for i in range(len(mae_25)-1)]
 k_transitions = [f"{k_values[i]}→{k_values[i+1]}" for i in range(len(k_values)-1)]
 
@@ -52,24 +114,13 @@ plt.savefig('plot2_knn_diminishing_returns.png', dpi=300, bbox_inches='tight')
 print("Saved: plot2_knn_diminishing_returns.png")
 plt.close()
 
-# TASK 2: SVD vs KNN
-
-# SVD Results
-factors = [5, 10, 20, 30, 50, 75, 100, 150, 200]
-svd_mae_25 = [0.7422, 0.7403, 0.7403, 0.7404, 0.7416, 0.7410, 0.7408, 0.7431, 0.7457]
-svd_mae_75 = [0.7679, 0.7683, 0.7691, 0.7700, 0.7721, 0.7736, 0.7752, 0.7801, 0.7822]
-
-# KNN best results for comparison
-knn_best_25 = 0.7452
-knn_best_75 = 0.8164
-
 # Plot 3: SVD vs KNN Comparison
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
 
 # 25% Sparsity
 ax1.plot(factors, svd_mae_25, 'D-', linewidth=2.5, markersize=10, label='SVD', color='#F77F00')
-ax1.axhline(y=knn_best_25, color='#2E86AB', linestyle='--', linewidth=2, label=f'KNN (K=80): {knn_best_25:.4f}')
-ax1.axvline(x=10, color='#F77F00', linestyle=':', alpha=0.5, label='Best SVD: 10 factors')
+ax1.axhline(y=knn_best_25, color='#2E86AB', linestyle='--', linewidth=2, label=f'KNN (K={best_k_25}): {knn_best_25:.4f}')
+ax1.axvline(x=best_factors_25, color='#F77F00', linestyle=':', alpha=0.5, label=f'Best SVD: {best_factors_25} factors')
 ax1.set_xlabel('Number of Latent Factors', fontsize=12, fontweight='bold')
 ax1.set_ylabel('MAE', fontsize=12, fontweight='bold')
 ax1.set_title('25% Missing Ratings', fontsize=14, fontweight='bold')
@@ -78,8 +129,8 @@ ax1.grid(True, alpha=0.3)
 
 # 75% Sparsity
 ax2.plot(factors, svd_mae_75, 'D-', linewidth=2.5, markersize=10, label='SVD', color='#F77F00')
-ax2.axhline(y=knn_best_75, color='#A23B72', linestyle='--', linewidth=2, label=f'KNN (K=70): {knn_best_75:.4f}')
-ax2.axvline(x=5, color='#F77F00', linestyle=':', alpha=0.5, label='Best SVD: 5 factors')
+ax2.axhline(y=knn_best_75, color='#A23B72', linestyle='--', linewidth=2, label=f'KNN (K={best_k_75}): {knn_best_75:.4f}')
+ax2.axvline(x=best_factors_75, color='#F77F00', linestyle=':', alpha=0.5, label=f'Best SVD: {best_factors_75} factors')
 ax2.set_xlabel('Number of Latent Factors', fontsize=12, fontweight='bold')
 ax2.set_ylabel('MAE', fontsize=12, fontweight='bold')
 ax2.set_title('75% Missing Ratings', fontsize=14, fontweight='bold')
@@ -92,12 +143,12 @@ plt.savefig('plot3_svd_vs_knn.png', dpi=300, bbox_inches='tight')
 print("Saved: plot3_svd_vs_knn.png")
 plt.close()
 
-# plot 4: Improvement Bar Chart
+# Plot 4: SVD Improvement Bar Chart
 fig, ax = plt.subplots(figsize=(10, 7))
 categories = ['25% Missing', '75% Missing']
 knn_maes = [knn_best_25, knn_best_75]
-svd_maes = [0.7403, 0.7679]
-improvements = [knn_best_25 - 0.7403, knn_best_75 - 0.7679]
+svd_maes = [svd_results_25[best_factors_25], svd_results_75[best_factors_75]]
+improvements = [knn_best_25 - svd_maes[0], knn_best_75 - svd_maes[1]]
 
 x = np.arange(len(categories))
 width = 0.25
@@ -114,7 +165,6 @@ ax.set_xticklabels(categories)
 ax.legend(fontsize=11)
 ax.grid(True, alpha=0.3, axis='y')
 
-# add value labels on bars
 for bars in [bars1, bars2, bars3]:
     for bar in bars:
         height = bar.get_height()
@@ -125,30 +175,6 @@ plt.tight_layout()
 plt.savefig('plot4_svd_improvement.png', dpi=300, bbox_inches='tight')
 print("Saved: plot4_svd_improvement.png")
 plt.close()
-
-# TASK 3: Top-N Recommendations
-
-n_values = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-
-# 25% Sparsity - KNN
-knn_25_precision = [0.6299, 0.4782, 0.3860, 0.3209, 0.2728, 0.2350, 0.2049, 0.1813, 0.1623, 0.1466]
-knn_25_recall = [0.6681, 0.8333, 0.9064, 0.9433, 0.9643, 0.9751, 0.9801, 0.9833, 0.9850, 0.9860]
-knn_25_f1 = [0.6484, 0.6077, 0.5415, 0.4789, 0.4253, 0.3787, 0.3389, 0.3062, 0.2786, 0.2553]
-
-# 25% Sparsity - SVD
-svd_25_precision = [0.6258, 0.4761, 0.3855, 0.3209, 0.2726, 0.2344, 0.2049, 0.1812, 0.1622, 0.1466]
-svd_25_recall = [0.6663, 0.8316, 0.9056, 0.9434, 0.9640, 0.9741, 0.9798, 0.9826, 0.9849, 0.9858]
-svd_25_f1 = [0.6454, 0.6055, 0.5408, 0.4789, 0.4251, 0.3779, 0.3389, 0.3059, 0.2786, 0.2552]
-
-# 75% Sparsity - KNN
-knn_75_precision = [0.7053, 0.6636, 0.6066, 0.5517, 0.5043, 0.4643, 0.4314, 0.4024, 0.3774, 0.3546]
-knn_75_recall = [0.3016, 0.5299, 0.6579, 0.7366, 0.7907, 0.8307, 0.8627, 0.8881, 0.9088, 0.9252]
-knn_75_f1 = [0.4225, 0.5893, 0.6313, 0.6308, 0.6158, 0.5957, 0.5752, 0.5539, 0.5334, 0.5127]
-
-# 75% Sparsity - SVD
-svd_75_precision = [0.7577, 0.6929, 0.6239, 0.5647, 0.5150, 0.4734, 0.4381, 0.4084, 0.3819, 0.3586]
-svd_75_recall = [0.3279, 0.5501, 0.6708, 0.7478, 0.7995, 0.8384, 0.8686, 0.8937, 0.9132, 0.9294]
-svd_75_f1 = [0.4578, 0.6133, 0.6465, 0.6434, 0.6264, 0.6051, 0.5824, 0.5606, 0.5385, 0.5175]
 
 # Plot 5: Precision-Recall Tradeoff (25%)
 fig, ax = plt.subplots(figsize=(12, 7))
@@ -182,10 +208,20 @@ print("Saved: plot6_f1_comparison_all.png")
 plt.close()
 
 # Plot 7: Best F1 Scores Summary
+best_f1_knn_25 = max(knn_25_f1)
+best_f1_svd_25 = max(svd_25_f1)
+best_f1_knn_75 = max(knn_75_f1)
+best_f1_svd_75 = max(svd_75_f1)
+
+best_n_knn_25 = n_values[knn_25_f1.index(best_f1_knn_25)]
+best_n_svd_25 = n_values[svd_25_f1.index(best_f1_svd_25)]
+best_n_knn_75 = n_values[knn_75_f1.index(best_f1_knn_75)]
+best_n_svd_75 = n_values[svd_75_f1.index(best_f1_svd_75)]
+
 fig, ax = plt.subplots(figsize=(10, 7))
 scenarios = ['KNN\n25%', 'SVD\n25%', 'KNN\n75%', 'SVD\n75%']
-f1_scores = [0.6484, 0.6454, 0.6313, 0.6465]
-best_n = [10, 10, 30, 30]
+f1_scores = [best_f1_knn_25, best_f1_svd_25, best_f1_knn_75, best_f1_svd_75]
+best_ns = [best_n_knn_25, best_n_svd_25, best_n_knn_75, best_n_svd_75]
 colors_scenario = ['#2E86AB', '#06A77D', '#A23B72', '#F77F00']
 
 bars = ax.bar(scenarios, f1_scores, color=colors_scenario, alpha=0.8, edgecolor='black', linewidth=2)
@@ -194,8 +230,7 @@ ax.set_title('Task 3: Best F1 Scores Summary', fontsize=15, fontweight='bold')
 ax.set_ylim([0, 0.7])
 ax.grid(True, alpha=0.3, axis='y')
 
-# add value labels
-for i, (bar, n) in enumerate(zip(bars, best_n)):
+for i, (bar, n) in enumerate(zip(bars, best_ns)):
     height = bar.get_height()
     ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
             f'F1={height:.4f}\nN={n}', ha='center', va='bottom',
@@ -208,10 +243,10 @@ plt.close()
 
 print("All plots generated successfully!")
 print("\nGenerated files:")
-print("  1. plot1_knn_mae_vs_k.png - KNN performance vs K")
-print("  2. plot2_knn_diminishing_returns.png - Diminishing returns analysis")
-print("  3. plot3_svd_vs_knn.png - SVD vs KNN comparison")
-print("  4. plot4_svd_improvement.png - SVD improvement bar chart")
-print("  5. plot5_precision_recall_25.png - Precision-recall tradeoff")
-print("  6. plot6_f1_comparison_all.png - F1 scores all scenarios")
-print("  7. plot7_best_f1_summary.png - Best F1 summary")
+print("  1. plot1_knn_mae_vs_k.png")
+print("  2. plot2_knn_diminishing_returns.png")
+print("  3. plot3_svd_vs_knn.png")
+print("  4. plot4_svd_improvement.png")
+print("  5. plot5_precision_recall_25.png")
+print("  6. plot6_f1_comparison_all.png")
+print("  7. plot7_best_f1_summary.png")

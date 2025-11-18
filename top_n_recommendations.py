@@ -3,10 +3,8 @@ from collections import defaultdict
 from surprise import KNNWithMeans, SVD
 from surprise.accuracy import mae
 
-# ============= Load Results from Previous Tasks =============
-print("=" * 70)
+# Load Results from Previous Tasks
 print("Loading results from Task 1 and Task 2...")
-print("=" * 70)
 
 # Load KNN results
 with open('knn_results.pkl', 'rb') as f:
@@ -32,14 +30,8 @@ print(f"Loaded: Best SVD factors (25%) = {best_factors_25}")
 print(f"Loaded: Best SVD factors (75%) = {best_factors_75}")
 
 
-# ============= Define Precision/Recall Function =============
+# Define Precision/Recall Function
 def precision_recall_at_n(predictions, n=10, threshold=4):
-    """
-    Return precision and recall at n metrics for each user.
-
-    Relevant items are those with true rating >= threshold (4 or 5 stars).
-    Recommended items are the top-N items by predicted rating.
-    """
     # Map predictions to each user
     user_est_true = defaultdict(list)
     for uid, _, true_r, est, _ in predictions:
@@ -72,10 +64,8 @@ def precision_recall_at_n(predictions, n=10, threshold=4):
     return precisions, recalls
 
 
-# ============= TASK 3: Top-N Recommendations =============
-print("\n" + "=" * 70)
+# TASK 3: Top-N Recommendations
 print("TASK 3: Top-N Recommendations (Precision, Recall, F1)")
-print("=" * 70)
 
 # N values to test
 n_values = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
@@ -83,10 +73,8 @@ n_values = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 # Threshold for relevant items (4 or 5 stars)
 threshold = 4
 
-# ============= 25% Sparsity - KNN =============
-print("\n" + "=" * 70)
+# 25% Sparsity - KNN
 print("25% Missing Ratings - KNN (K={})".format(best_k_25))
-print("=" * 70)
 
 # Train KNN model with best K
 sim_options = {'name': 'pearson', 'user_based': True}
@@ -114,10 +102,8 @@ for n in n_values:
     knn_25_results.append((n, avg_precision, avg_recall, f1))
     print(f"{n:>5} | {avg_precision:>10.4f} | {avg_recall:>10.4f} | {f1:>10.4f}")
 
-# ============= 25% Sparsity - SVD =============
-print("\n" + "=" * 70)
+# 25% Sparsity - SVD
 print("25% Missing Ratings - SVD ({} factors)".format(best_factors_25))
-print("=" * 70)
 
 # Train SVD model with best factors
 algo_svd_25 = SVD(n_factors=best_factors_25, n_epochs=20, random_state=42)
@@ -142,10 +128,9 @@ for n in n_values:
     svd_25_results.append((n, avg_precision, avg_recall, f1))
     print(f"{n:>5} | {avg_precision:>10.4f} | {avg_recall:>10.4f} | {f1:>10.4f}")
 
-# ============= 75% Sparsity - KNN =============
-print("\n" + "=" * 70)
+# 75% Sparsity - KNN
+
 print("75% Missing Ratings - KNN (K={})".format(best_k_75))
-print("=" * 70)
 
 # Train KNN model with best K
 algo_knn_75 = KNNWithMeans(k=best_k_75, sim_options=sim_options, verbose=False)
@@ -170,10 +155,8 @@ for n in n_values:
     knn_75_results.append((n, avg_precision, avg_recall, f1))
     print(f"{n:>5} | {avg_precision:>10.4f} | {avg_recall:>10.4f} | {f1:>10.4f}")
 
-# ============= 75% Sparsity - SVD =============
-print("\n" + "=" * 70)
+#  75% Sparsity - SVD
 print("75% Missing Ratings - SVD ({} factors)".format(best_factors_75))
-print("=" * 70)
 
 # Train SVD model with best factors
 algo_svd_75 = SVD(n_factors=best_factors_75, n_epochs=20, random_state=42)
@@ -198,10 +181,8 @@ for n in n_values:
     svd_75_results.append((n, avg_precision, avg_recall, f1))
     print(f"{n:>5} | {avg_precision:>10.4f} | {avg_recall:>10.4f} | {f1:>10.4f}")
 
-# ============= Summary Analysis =============
-print("\n" + "=" * 70)
+# Summary Analysis
 print("SUMMARY: Best F1 Scores")
-print("=" * 70)
 
 # Find best F1 for each scenario
 best_knn_25 = max(knn_25_results, key=lambda x: x[3])
@@ -216,3 +197,19 @@ print(f"  SVD: Best F1 = {best_svd_25[3]:.4f} at N={best_svd_25[0]} (P={best_svd
 print("\n75% Sparsity:")
 print(f"  KNN: Best F1 = {best_knn_75[3]:.4f} at N={best_knn_75[0]} (P={best_knn_75[1]:.4f}, R={best_knn_75[2]:.4f})")
 print(f"  SVD: Best F1 = {best_svd_75[3]:.4f} at N={best_svd_75[0]} (P={best_svd_75[1]:.4f}, R={best_svd_75[2]:.4f})")
+
+#  Save Results for Plotting
+print("Saving Task 3 results for plotting...")
+
+task3_results = {
+    'n_values': n_values,
+    'knn_25_results': knn_25_results,
+    'svd_25_results': svd_25_results,
+    'knn_75_results': knn_75_results,
+    'svd_75_results': svd_75_results
+}
+
+with open('task3_results.pkl', 'wb') as f:
+    pickle.dump(task3_results, f)
+
+print("Task 3 results saved to 'task3_results.pkl'")
