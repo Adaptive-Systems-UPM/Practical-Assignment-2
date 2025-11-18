@@ -1,0 +1,57 @@
+Results:
+Task 1a: Finding Optimal K with 25% Missing Ratings
+============================================================
+K =   5 | MAE = 0.8049
+K =  10 | MAE = 0.7717
+K =  15 | MAE = 0.7591
+K =  20 | MAE = 0.7533
+K =  25 | MAE = 0.7508
+K =  30 | MAE = 0.7488
+K =  40 | MAE = 0.7467
+K =  50 | MAE = 0.7458
+K =  60 | MAE = 0.7455
+K =  70 | MAE = 0.7453
+K =  80 | MAE = 0.7452
+K =  90 | MAE = 0.7453
+K = 100 | MAE = 0.7454
+K = 120 | MAE = 0.7458
+K = 150 | MAE = 0.7460
+K = 200 | MAE = 0.7462
+K = 250 | MAE = 0.7462
+
+============================================================
+Best K for 25% sparsity: 80
+Best MAE: 0.7452
+============================================================
+
+Diminishing Returns Analysis:
+K   5 →  10: Improvement = 0.0333
+K  10 →  15: Improvement = 0.0126
+K  15 →  20: Improvement = 0.0057
+K  20 →  25: Improvement = 0.0026
+K  25 →  30: Improvement = 0.0020
+K  30 →  40: Improvement = 0.0021
+K  40 →  50: Improvement = 0.0009
+K  50 →  60: Improvement = 0.0004
+K  60 →  70: Improvement = 0.0002
+K  70 →  80: Improvement = 0.0001
+K  80 →  90: Improvement = -0.0001
+K  90 → 100: Improvement = -0.0002
+K 100 → 120: Improvement = -0.0003
+K 120 → 150: Improvement = -0.0002
+K 150 → 200: Improvement = -0.0002
+K 200 → 250: Improvement = -0.0001
+
+We tested K values from 5 to 250 to find the optimal number of neighbors for user-based KNN.
+ The results show K=80 achieves the best performance with MAE=0.7452.
+
+The most significant improvements occur with smaller K values - going from K=5 to K=30 reduces
+MAE by 0.0561 (about 7% improvement). After K=30, we see clear diminishing returns. Each increase brings smaller gains: K=30 to K=50 only improves by 0.0030, and K=50 to K=80 by just 0.0006.
+
+Beyond K=80, MAE actually starts increasing slightly. At K=90 it rises to 0.7453, and continues
+worsening through K=250 (MAE=0.7462). This suggests that including more than 80 neighbors introduces
+noise by averaging in dissimilar users, hurting prediction accuracy.
+
+The sweet spot at K=80 balances two factors: it's large enough to reduce noise through averaging,
+but small enough to exclude dissimilar users who would hurt predictions. This makes K=80 our optimal
+choice for the 25% sparsity scenario.

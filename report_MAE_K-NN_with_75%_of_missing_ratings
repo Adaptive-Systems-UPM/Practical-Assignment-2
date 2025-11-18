@@ -1,0 +1,62 @@
+Results:
+Task 1b: Finding Optimal K with 75% Missing Ratings
+============================================================
+K =   5 | MAE = 0.8421
+K =  10 | MAE = 0.8232
+K =  15 | MAE = 0.8186
+K =  20 | MAE = 0.8172
+K =  25 | MAE = 0.8167
+K =  30 | MAE = 0.8165
+K =  40 | MAE = 0.8164
+K =  50 | MAE = 0.8164
+K =  60 | MAE = 0.8164
+K =  70 | MAE = 0.8164
+K =  80 | MAE = 0.8164
+K =  90 | MAE = 0.8164
+K = 100 | MAE = 0.8164
+K = 120 | MAE = 0.8164
+K = 150 | MAE = 0.8164
+K = 200 | MAE = 0.8164
+K = 250 | MAE = 0.8164
+
+============================================================
+Best K (75%): 70 with MAE = 0.8164
+============================================================
+
+Diminishing Returns Analysis for 75% sparsity:
+K   5 →  10: Improvement = 0.0189
+K  10 →  15: Improvement = 0.0046
+K  15 →  20: Improvement = 0.0014
+K  20 →  25: Improvement = 0.0005
+K  25 →  30: Improvement = 0.0002
+K  30 →  40: Improvement = 0.0001
+K  40 →  50: Improvement = 0.0000
+K  50 →  60: Improvement = 0.0000
+K  60 →  70: Improvement = 0.0000
+K  70 →  80: Improvement = -0.0000
+K  80 →  90: Improvement = 0.0000
+K  90 → 100: Improvement = 0.0000
+K 100 → 120: Improvement = 0.0000
+K 120 → 150: Improvement = 0.0000
+K 150 → 200: Improvement = 0.0000
+K 200 → 250: Improvement = 0.0000
+
+With 75% of ratings held out for testing, we tested the same K range (5-250).
+The best performance was K=70 with MAE=0.8164, though K=40 through K=250 all achieved virtually
+identical results (MAE=0.8164).
+
+The sparsity problem is immediately visible in the higher MAE - 0.8164 compared to 0.7452 with
+25% sparsity. That's a 9.5% increase in prediction error. With less training data, the model
+simply can't learn user preferences as accurately.
+
+Improvements plateau much earlier here than with 25% sparsity. Most of the gains happen from
+K=5 to K=30 (MAE drops by 0.0256). After K=40, MAE completely flatlines - increasing
+K further provides zero benefit. This contrasts with 25% sparsity where we saw continued
+small improvements up to K=80.
+
+This flat plateau reveals the sparsity challenge: with 75% missing ratings, users have fewer
+rated items in common. Finding more neighbors doesn't help because those neighbors lack sufficient
+overlap to make better predictions. The algorithm hits a ceiling where additional neighbors
+contribute no new information. For this scenario, K=70 is technically optimal, but
+anything from K=40 to K=250 performs identically - the choice doesn't matter once you've
+included enough neighbors to cover available data.
